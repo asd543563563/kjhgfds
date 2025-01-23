@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプル音楽プレイヤー（ループ再生）</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .player {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .song {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .song-title {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>シンプル音楽プレイヤー（ループ再生）</h1>
+    <div class="player">
+        <div id="songList"></div>
+    </div>
+
+    <script>
+        const songs = [
+            { title: "オリジナル曲1", src: "https://drive.google.com/file/d/1GZ_5P0KCqHlQIeFU7mk4QVrfX34NUu7p/view?usp=drive_link" },
+            { title: "オリジナル曲2", src: "https://drive.google.com/file/d/1sLUyd0ExQioAsNJG4TYljL9M6x7vzuu7/view?usp=drive_link" },
+            { title: "オリジナル曲3", src: "https://drive.google.com/file/d/1XNuT6vgmgKBA-3p_HxJkoAwqPfrlZPbK/view?usp=drive_link" },
+            { title: "オリジナル曲4", src: "https://drive.google.com/file/d/1YtUqRvL-5EaHJULXLH0XUVlo2lp_h-tU/view?usp=drive_link" },
+            { title: "オリジナル曲5", src: "https://drive.google.com/file/d/1WP0TqOGUzJNP6kvgZzcmuHvgW_Bw0CeR/view?usp=drive_link" }
+        ];
+
+        let currentAudio = null;
+
+        function createSongElement(song, index) {
+            const songDiv = document.createElement('div');
+            songDiv.className = 'song';
+            songDiv.innerHTML = `
+                <button id="playBtn${index}" aria-label="${song.title}を再生">再生</button>
+                <span class="song-title">${song.title}</span>
+            `;
+            return songDiv;
+        }
+
+        function setupPlayer() {
+            const songList = document.getElementById('songList');
+            songs.forEach((song, index) => {
+                const songElement = createSongElement(song, index);
+                songList.appendChild(songElement);
+
+                const playBtn = songElement.querySelector(`#playBtn${index}`);
+                playBtn.addEventListener('click', () => togglePlay(song, playBtn));
+            });
+        }
+
+        function togglePlay(song, button) {
+            if (currentAudio && currentAudio.src === song.src) {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                    button.textContent = '停止';
+                    button.setAttribute('aria-label', `${song.title}を停止`);
+                } else {
+                    currentAudio.pause();
+                    button.textContent = '再生';
+                    button.setAttribute('aria-label', `${song.title}を再生`);
+                }
+            } else {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    const oldButton = document.querySelector(`button[aria-label$="を停止"]`);
+                    if (oldButton) {
+                        oldButton.textContent = '再生';
+                        oldButton.setAttribute('aria-label', `${oldButton.nextElementSibling.textContent}を再生`);
+                    }
+                }
+                currentAudio = new Audio(song.src);
+                currentAudio.loop = true; // ループ再生を有効にする
+                currentAudio.play();
+                button.textContent = '停止';
+                button.setAttribute('aria-label', `${song.title}を停止`);
+            }
+        }
+
+        setupPlayer();
+    </script>
+</body>
+</html>
+
